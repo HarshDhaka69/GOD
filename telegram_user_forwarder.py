@@ -84,7 +84,69 @@ async def forward_messages_without_caption():
                 
                 # Send media with custom caption or no caption
                 caption = CUSTOM_CAPTION if USE_CUSTOM_CAPTION else ""
-                await client.send_file(TARGET_CHAT_ID, path, caption=caption)
+                
+                # Preserve media attributes
+                if message.photo:
+                    # For photos, pass the attributes
+                    if hasattr(message.photo, 'sizes'):
+                        # Find the largest size
+                        largest_size = max(message.photo.sizes, key=lambda s: getattr(s, 'w', 0) * getattr(s, 'h', 0))
+                        width = getattr(largest_size, 'w', None)
+                        height = getattr(largest_size, 'h', None)
+                        await client.send_file(
+                            TARGET_CHAT_ID, 
+                            path, 
+                            caption=caption,
+                            attributes=message.media.photo.attributes if hasattr(message.media.photo, 'attributes') else None,
+                            width=width,
+                            height=height
+                        )
+                    else:
+                        await client.send_file(TARGET_CHAT_ID, path, caption=caption)
+                elif message.video:
+                    # For videos, pass all the relevant attributes
+                    video_attributes = []
+                    width = None
+                    height = None
+                    duration = None
+                    
+                    # Extract video attributes
+                    if hasattr(message.media, 'document') and hasattr(message.media.document, 'attributes'):
+                        for attr in message.media.document.attributes:
+                            if hasattr(attr, 'w'):
+                                width = attr.w
+                            if hasattr(attr, 'h'):
+                                height = attr.h
+                            if hasattr(attr, 'duration'):
+                                duration = attr.duration
+                            # Add all original attributes to preserve them
+                            video_attributes.append(attr)
+                    
+                    await client.send_file(
+                        TARGET_CHAT_ID, 
+                        path, 
+                        caption=caption,
+                        attributes=video_attributes,
+                        width=width,
+                        height=height,
+                        duration=duration,
+                        supports_streaming=True
+                    )
+                elif message.document or message.gif:
+                    # For documents/GIFs, preserve attributes
+                    doc_attributes = []
+                    if hasattr(message.media, 'document') and hasattr(message.media.document, 'attributes'):
+                        doc_attributes = message.media.document.attributes
+                    
+                    await client.send_file(
+                        TARGET_CHAT_ID, 
+                        path, 
+                        caption=caption,
+                        attributes=doc_attributes
+                    )
+                else:
+                    # For other media types
+                    await client.send_file(TARGET_CHAT_ID, path, caption=caption)
             else:
                 # For text messages, send a new message instead of forwarding
                 if message.text:
@@ -166,7 +228,69 @@ async def forward_all_messages():
                 
                 # Send media with custom caption or no caption
                 caption = CUSTOM_CAPTION if USE_CUSTOM_CAPTION else ""
-                await client.send_file(TARGET_CHAT_ID, path, caption=caption)
+                
+                # Preserve media attributes
+                if message.photo:
+                    # For photos, pass the attributes
+                    if hasattr(message.photo, 'sizes'):
+                        # Find the largest size
+                        largest_size = max(message.photo.sizes, key=lambda s: getattr(s, 'w', 0) * getattr(s, 'h', 0))
+                        width = getattr(largest_size, 'w', None)
+                        height = getattr(largest_size, 'h', None)
+                        await client.send_file(
+                            TARGET_CHAT_ID, 
+                            path, 
+                            caption=caption,
+                            attributes=message.media.photo.attributes if hasattr(message.media.photo, 'attributes') else None,
+                            width=width,
+                            height=height
+                        )
+                    else:
+                        await client.send_file(TARGET_CHAT_ID, path, caption=caption)
+                elif message.video:
+                    # For videos, pass all the relevant attributes
+                    video_attributes = []
+                    width = None
+                    height = None
+                    duration = None
+                    
+                    # Extract video attributes
+                    if hasattr(message.media, 'document') and hasattr(message.media.document, 'attributes'):
+                        for attr in message.media.document.attributes:
+                            if hasattr(attr, 'w'):
+                                width = attr.w
+                            if hasattr(attr, 'h'):
+                                height = attr.h
+                            if hasattr(attr, 'duration'):
+                                duration = attr.duration
+                            # Add all original attributes to preserve them
+                            video_attributes.append(attr)
+                    
+                    await client.send_file(
+                        TARGET_CHAT_ID, 
+                        path, 
+                        caption=caption,
+                        attributes=video_attributes,
+                        width=width,
+                        height=height,
+                        duration=duration,
+                        supports_streaming=True
+                    )
+                elif message.document or message.gif:
+                    # For documents/GIFs, preserve attributes
+                    doc_attributes = []
+                    if hasattr(message.media, 'document') and hasattr(message.media.document, 'attributes'):
+                        doc_attributes = message.media.document.attributes
+                    
+                    await client.send_file(
+                        TARGET_CHAT_ID, 
+                        path, 
+                        caption=caption,
+                        attributes=doc_attributes
+                    )
+                else:
+                    # For other media types
+                    await client.send_file(TARGET_CHAT_ID, path, caption=caption)
             else:
                 # For text messages, send a new message instead of forwarding
                 if message.text:
