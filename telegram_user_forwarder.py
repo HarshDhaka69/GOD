@@ -29,7 +29,7 @@ SESSION_NAME = "user_session"
 # Forwarding configuration
 FORWARD_WITHOUT_CAPTION = True  # Set to True to remove captions
 USE_CUSTOM_CAPTION = True  # Set to True to use custom caption
-CUSTOM_CAPTION = "This Video Is Uploaded By @TeraDelta"  # Custom caption text
+CUSTOM_CAPTION = "This File Is Uploaded By @TeraDelta"  # Custom caption text
 START_MESSAGE_ID = 16  # Start forwarding from this message ID
 MESSAGE_COUNT = 15000  # Number of messages to forward
 
